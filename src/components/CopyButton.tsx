@@ -1,25 +1,36 @@
-import React, { useRef } from "react"
+import React, { useRef, useState } from "react"
 
 const CopyButton = ({ onClick }: { onClick: () => void }) => {
   const copyConfirmRef = useRef<HTMLDivElement>(null)
+  const [animationKey, setAnimationKey] = useState(0) //TODO: can i use key to reset the animation?
+
+  const resetAnimation = () => {
+    if (!copyConfirmRef.current) return
+    copyConfirmRef.current.style.animationName = ""
+    copyConfirmRef.current.style.display = "none"
+  }
 
   const handleClick = () => {
     onClick()
+    setAnimationKey((prevKey) => prevKey + 1)
     if (!copyConfirmRef.current) return
     copyConfirmRef.current.style.display = "block"
     copyConfirmRef.current.style.animationName = "copy-confirm"
+  }
+
+  const onKeyDown = (event: React.KeyboardEvent) => {
+    if (event.key === "Enter" || event.key === " ") {
+      resetAnimation()
+    }
   }
 
   return (
     <div className="absolute right-2 top-2">
       <button
         className=" rounded p-1 hover:bg-slate-300"
-        onMouseDown={() => {
-          if (!copyConfirmRef.current) return
-          copyConfirmRef.current.style.animationName = ""
-          copyConfirmRef.current.style.display = "none"
-        }}
+        onMouseDown={resetAnimation}
         onClick={handleClick}
+        onKeyDown={onKeyDown}
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -30,8 +41,9 @@ const CopyButton = ({ onClick }: { onClick: () => void }) => {
         </svg>
       </button>
       <div
+        // key={animationKey}
         ref={copyConfirmRef}
-        className="animate-copy-confirm absolute -top-5 left-1/2 hidden -translate-x-1/2 whitespace-nowrap rounded bg-slate-100 p-1 text-xs font-semibold shadow pointer-events-none"
+        className="animate-copy-confirm pointer-events-none absolute -top-5 left-1/2 hidden -translate-x-1/2 whitespace-nowrap rounded bg-slate-100 p-1 text-xs font-semibold shadow"
       >
         Copied image!
       </div>

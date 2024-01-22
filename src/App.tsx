@@ -2,6 +2,7 @@ import { useRef, useState } from "react"
 import ModeButton from "./components/Buttons/ModeButtons"
 import GenerateButton from "./components/Buttons/GenerateButton"
 import {
+  brandWords,
   classicLolitaWords,
   gothicLolitaWords,
   sweetLolitaWords,
@@ -14,6 +15,7 @@ enum Mode {
   Classic = "classic",
   Sweet = "sweet",
   Gothic = "gothic",
+  Brand = "brand",
 }
 
 const modeMap = {
@@ -38,6 +40,13 @@ const modeMap = {
     textColor: "text-stone-50",
     bgColor: "bg-black",
   },
+  [Mode.Brand]: {
+    words: brandWords,
+    bg: "bg-brand",
+    anim: "animate-bgPan-brand",
+    textColor: "text-cyan-600",
+    bgColor: "bg-cyan-600",
+  },
 }
 
 function App() {
@@ -45,6 +54,8 @@ function App() {
   const [result, setResult] = useState("")
   const [name, setName] = useState("")
   const resultRef = useRef<HTMLDivElement>(null)
+  const resultTextRef = useRef<HTMLSpanElement>(null)
+  const [key, setKey] = useState(0)
 
   const copyResultToClipboardAsImage = async () => {
     try {
@@ -95,6 +106,10 @@ function App() {
       wordArray.push(newWord)
     }
     setResult(wordArray.join(" "))
+
+    if (!resultTextRef.current) return
+    resultTextRef.current.style.animationName = "pop-in"
+    setKey((prevKey) => prevKey + 1)
   }
 
   return (
@@ -112,9 +127,9 @@ function App() {
           Lolita Name Generator
         </h1>
         <div
-          className={`rounded-lg bg-opacity-65 p-5 shadow-2xl ${modeMap[mode].bgColor} flex w-full flex-col gap-10`}
+          className={`rounded-lg bg-opacity-75 p-5 shadow-2xl ${modeMap[mode].bgColor} flex w-full flex-col gap-10`}
         >
-          <div className="flex flex-col gap-5">
+          <div className="flex flex-col gap-10">
             <div id="modeButtons" className="flex w-full gap-5">
               <ModeButton
                 id="classic"
@@ -136,14 +151,22 @@ function App() {
                 id="gothic"
                 onClick={() => setMode(Mode.Gothic)}
                 isSelected={mode === Mode.Gothic}
-                className={`border-blue-700 bg-black text-white ${modeMap[Mode.Gothic].textColor} font-gothic`}
+                className={`border-blue-700 bg-black ${modeMap[Mode.Gothic].textColor} font-gothic`}
               >
                 Gothic
+              </ModeButton>
+              <ModeButton
+                id="brand"
+                onClick={() => setMode(Mode.Brand)}
+                isSelected={mode === Mode.Brand}
+                className={`border-pink-600 bg-slate-50 ${modeMap[Mode.Brand].textColor} font-brand`}
+              >
+                Brand
               </ModeButton>
             </div>
             <div className="flex items-center gap-5">
               <span className="font-semibold text-stone-50">
-                From name (optional):
+                Name (optional):
               </span>
               <input
                 type="text"
@@ -152,7 +175,7 @@ function App() {
                 value={name}
               />
               <button
-                className="h-10 rounded border border-gray-500 bg-slate-50 px-4 font-semibold transition hover:bg-slate-300"
+                className="active:shadow-button-press h-10 rounded border border-gray-500 bg-slate-50 px-4 font-semibold active:bg-slate-100"
                 disabled={!name}
                 onClick={() => setName("")}
               >
@@ -160,16 +183,22 @@ function App() {
               </button>
             </div>
           </div>
-          <hr className="rounded-full opacity-75 border-t-2" />
+          <hr className="rounded-full border-t-2 opacity-75" />
           <div className="flex flex-col gap-5">
             <GenerateButton onClick={handleGenerate}>Generate</GenerateButton>
             <div className="relative">
               <div
                 id="result"
                 ref={resultRef}
-                className="relative grid h-40 w-full place-items-center rounded-lg bg-slate-50 text-2xl font-semibold"
+                className="relative grid h-40 w-full place-items-center rounded-lg bg-slate-50 "
               >
-                {result}
+                <span
+                  key={result}
+                  ref={resultTextRef}
+                  className="animate-pop-in text-2xl font-semibold [backface-visibility:hidden]"
+                >
+                  {result}
+                </span>
               </div>
               <CopyButton onClick={copyResultToClipboardAsImage} />
             </div>

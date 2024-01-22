@@ -20,4 +20,10 @@
     src: url("/fonts/ElegantHandwriting.otf") format("opentype");
     font-weight: 400;
   }
+
+  @font-face {
+    font-family: "BrandFont";
+    src: url("/fonts/PeachCake.otf") format("opentype");
+    font-weight: 400;
+  }
 }
