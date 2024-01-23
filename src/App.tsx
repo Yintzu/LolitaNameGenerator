@@ -113,24 +113,28 @@ function App() {
   }
 
   return (
-    <div id="app" className={`relative h-full overflow-hidden text-stone-950`}>
+    <div
+      id="app"
+      className={`relative h-full overflow-x-hidden text-stone-950`}
+    >
       <div
-        className={`${modeMap[mode].anim} absolute h-screen ${modeMap[mode].bg} [width:200vw]`}
+        className={`${modeMap[mode].anim} absolute min-h-screen ${modeMap[mode].bg} [width:200vw]`}
       ></div>
       <div
         id="content"
-        className="relative mx-auto flex w-full max-w-3xl flex-col gap-5 px-2 pt-12"
+        className="relative mx-auto flex w-full max-w-[720px] flex-col gap-5 px-2 pb-2 pt-10"
       >
         <h1
-          className={`my-6 text-center text-6xl font-bold ${modeMap[mode].textColor}`}
+          className={`my-4 text-center text-6xl font-bold ${modeMap[mode].textColor}`}
         >
           Lolita Name Generator
         </h1>
         <div
-          className={`rounded-lg bg-opacity-75 p-5 shadow-2xl ${modeMap[mode].bgColor} flex w-full flex-col gap-10`}
+          id="modal"
+          className={`rounded-lg bg-opacity-75 p-5 shadow-2xl ${modeMap[mode].bgColor} flex w-full flex-col gap-10 backdrop-blur-sm`}
         >
           <div className="flex flex-col gap-10">
-            <div id="modeButtons" className="flex w-full gap-5">
+            <div id="modeButtons" className="grid w-full grid-cols-2 gap-5">
               <ModeButton
                 id="classic"
                 onClick={() => setMode(Mode.Classic)}
@@ -143,7 +147,7 @@ function App() {
                 id="sweet"
                 onClick={() => setMode(Mode.Sweet)}
                 isSelected={mode === Mode.Sweet}
-                className={`bg-[#ffc1ec] ${modeMap[Mode.Sweet].textColor} font-sweet font-semibold`}
+                className={`border-[#f7f1aa] bg-[#ffc1ec] ${modeMap[Mode.Sweet].textColor} font-sweet font-semibold`}
               >
                 Sweet
               </ModeButton>
@@ -170,12 +174,13 @@ function App() {
               </span>
               <input
                 type="text"
-                className="h-10 min-w-0 flex-grow rounded pl-2 transition-all"
+                className={`h-10 min-w-0 flex-grow rounded border-2 border-stone-50 pl-2 transition-all focus:bg-stone-50 
+                ${name ? "bg-stone-50" : "bg-transparent"}`}
                 onChange={(e) => setName(e.target.value)}
                 value={name}
               />
               <button
-                className="active:shadow-button-press h-10 rounded border border-gray-500 bg-slate-50 px-4 font-semibold active:bg-slate-100"
+                className={`active:shadow-button-press h-10 rounded border border-gray-500 bg-slate-50 px-4 font-semibold active:bg-slate-100 ${!name ? "pointer-events-none [filter:contrast(0.3)_brightness(1.4)]" : ""}`}
                 disabled={!name}
                 onClick={() => setName("")}
               >
@@ -183,7 +188,7 @@ function App() {
               </button>
             </div>
           </div>
-          <hr className="rounded-full border-t-2 opacity-75" />
+          {/* <hr className="rounded-full border-t-2 border-stone-50" /> */}
           <div className="flex flex-col gap-5">
             <GenerateButton onClick={handleGenerate}>Generate</GenerateButton>
             <div className="relative">
@@ -195,7 +200,7 @@ function App() {
                 <span
                   key={result}
                   ref={resultTextRef}
-                  className="animate-pop-in text-2xl font-semibold [backface-visibility:hidden]"
+                  className="animate-pop-in text-2xl text-center font-semibold [backface-visibility:hidden]"
                 >
                   {result}
                 </span>

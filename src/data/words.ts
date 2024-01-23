@@ -294,10 +294,13 @@ export const brandWords = [
   "Enchanted",
   "Pretty",
   "Innocent",
+  "World",
   "Lady",
   "Eden",
   "Stacia",
   "Garden",
+  "Crystal",
+  "Castle",
   "Kingdom",
   "Amber",
   "Forest",
@@ -320,5 +323,10 @@ export const brandWords = [
   "Witch",
   "Tears",
   "Meta",
-  "Mori"
+  "Mori",
+  "Baby",
+  "Stars",
+  "Victorian",
+  "Maiden",
+  "Secret"
 ]
