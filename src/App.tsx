@@ -7,9 +7,10 @@ import {
   gothicLolitaWords,
   sweetLolitaWords,
 } from "./data/words"
-import { random } from "./utilities/helpers"
-import CopyButton from "./components/CopyButton"
-import html2canvas from "html2canvas"
+import { copyResultToClipboardAsImage, random } from "./utilities/helpers"
+import CopyButton from "./components/Buttons/CopyButton"
+import { postFeedback } from "./utilities/supabase"
+import FeedbackForm from "./components/FedbackForm/FeedbackForm"
 
 enum Mode {
   Classic = "classic",
@@ -56,42 +57,12 @@ function App() {
   const resultRef = useRef<HTMLDivElement>(null)
   const resultTextRef = useRef<HTMLSpanElement>(null)
   const [key, setKey] = useState(0)
-
-  const copyResultToClipboardAsImage = async () => {
-    try {
-      if (!resultRef.current) return
-      const div = resultRef.current.cloneNode(true) as HTMLDivElement
-      div.style.paddingBottom = "20px"
-      div.style.maxWidth = "600px"
-      div.style.position = "absolute"
-      div.style.left = "-10000px"
-
-      document.body.appendChild(div)
-      const canvas = await html2canvas(div)
-      document.body.removeChild(div)
-
-      const dataUrl = canvas.toDataURL("image/png")
-
-      const img = new Image()
-      img.src = dataUrl
-
-      const res = await fetch(dataUrl)
-      const blob = await res.blob()
-
-      await navigator.clipboard.write([
-        new ClipboardItem({
-          [blob.type]: blob,
-        }),
-      ])
-    } catch (err) {
-      console.error("Failed to copy div to clipboard as image:", err)
-    }
-  }
+  const [showFeedbackForm, setShowFeedbackForm] = useState(false)
 
   const handleGenerate = () => {
     const seed = name.trim().toLowerCase()
     const words = modeMap[mode].words
-    const noOfWords = Math.floor(random(seed) * 2) + 3
+    const noOfWords = Math.floor(random(seed + mode) * 2) + 3
     const wordArray: string[] = []
     for (let i = 0; i < noOfWords; i++) {
       let newWordIndex = Math.floor(
@@ -109,106 +80,127 @@ function App() {
 
     if (!resultTextRef.current) return
     resultTextRef.current.style.animationName = "pop-in"
-    setKey((prevKey) => prevKey + 1)
+    // setKey((prevKey) => prevKey + 1)
   }
 
   return (
     <div
       id="app"
-      className={`relative h-full overflow-x-hidden text-stone-950`}
+      className={`h-full min-h-screen overflow-x-hidden text-stone-950`}
     >
       <div
-        className={`${modeMap[mode].anim} absolute min-h-screen ${modeMap[mode].bg} [width:200vw]`}
+        className={`${modeMap[mode].anim} max-h-100vh absolute h-full min-h-screen ${modeMap[mode].bg} w-screen`}
       ></div>
-      <div
-        id="content"
-        className="relative mx-auto flex w-full max-w-[720px] flex-col gap-5 px-2 pb-2 pt-10"
-      >
-        <h1
-          className={`my-4 text-center text-6xl font-bold ${modeMap[mode].textColor}`}
-        >
-          Lolita Name Generator
-        </h1>
+      <div className="relative min-h-screen pb-9">
         <div
-          id="modal"
-          className={`rounded-lg bg-opacity-75 p-5 shadow-2xl ${modeMap[mode].bgColor} flex w-full flex-col gap-10 backdrop-blur-sm`}
+          id="content"
+          className="relative mx-auto flex h-full w-full max-w-[720px] flex-col gap-5 px-2 pb-2 pt-10"
         >
-          <div className="flex flex-col gap-10">
-            <div id="modeButtons" className="grid w-full grid-cols-2 gap-5">
-              <ModeButton
-                id="classic"
-                onClick={() => setMode(Mode.Classic)}
-                isSelected={mode === Mode.Classic}
-                className={` bg-[#ddbfb7] ${modeMap[Mode.Classic].textColor} font-classic`}
-              >
-                Classic
-              </ModeButton>
-              <ModeButton
-                id="sweet"
-                onClick={() => setMode(Mode.Sweet)}
-                isSelected={mode === Mode.Sweet}
-                className={`border-[#f7f1aa] bg-[#ffc1ec] ${modeMap[Mode.Sweet].textColor} font-sweet font-semibold`}
-              >
-                Sweet
-              </ModeButton>
-              <ModeButton
-                id="gothic"
-                onClick={() => setMode(Mode.Gothic)}
-                isSelected={mode === Mode.Gothic}
-                className={`border-blue-700 bg-black ${modeMap[Mode.Gothic].textColor} font-gothic`}
-              >
-                Gothic
-              </ModeButton>
-              <ModeButton
-                id="brand"
-                onClick={() => setMode(Mode.Brand)}
-                isSelected={mode === Mode.Brand}
-                className={`border-pink-600 bg-slate-50 ${modeMap[Mode.Brand].textColor} font-brand`}
-              >
-                Brand
-              </ModeButton>
-            </div>
-            <div className="flex items-center gap-5">
-              <span className="font-semibold text-stone-50">
-                Name (optional):
-              </span>
-              <input
-                type="text"
-                className={`h-10 min-w-0 flex-grow rounded border-2 border-stone-50 pl-2 transition-all focus:bg-stone-50 
+          <h1
+            className={`my-4 text-center text-6xl font-bold ${modeMap[mode].textColor}`}
+          >
+            Lolita Name Generator
+          </h1>
+          <div
+            id="modal"
+            className={`rounded-lg bg-opacity-75 p-5 shadow-2xl ${modeMap[mode].bgColor} flex w-full flex-col gap-10 backdrop-blur-sm`}
+          >
+            {showFeedbackForm ? (
+              <FeedbackForm />
+            ) : (
+              <>
+                <div className="flex flex-col gap-10">
+                  <div
+                    id="modeButtons"
+                    className="grid w-full grid-cols-2 gap-5"
+                  >
+                    <ModeButton
+                      id="classic"
+                      onClick={() => setMode(Mode.Classic)}
+                      isSelected={mode === Mode.Classic}
+                      className={` bg-[#ddbfb7] ${modeMap[Mode.Classic].textColor} font-classic`}
+                    >
+                      Classic
+                    </ModeButton>
+                    <ModeButton
+                      id="sweet"
+                      onClick={() => setMode(Mode.Sweet)}
+                      isSelected={mode === Mode.Sweet}
+                      className={`border-[#f7f1aa] bg-[#ffc1ec] ${modeMap[Mode.Sweet].textColor} font-sweet font-semibold`}
+                    >
+                      Sweet
+                    </ModeButton>
+                    <ModeButton
+                      id="gothic"
+                      onClick={() => setMode(Mode.Gothic)}
+                      isSelected={mode === Mode.Gothic}
+                      className={`border-blue-700 bg-black ${modeMap[Mode.Gothic].textColor} font-gothic`}
+                    >
+                      Gothic
+                    </ModeButton>
+                    <ModeButton
+                      id="brand"
+                      onClick={() => setMode(Mode.Brand)}
+                      isSelected={mode === Mode.Brand}
+                      className={`border-pink-600 bg-slate-50 ${modeMap[Mode.Brand].textColor} font-brand`}
+                    >
+                      Brand
+                    </ModeButton>
+                  </div>
+                  <div className="flex items-center gap-5">
+                    <span className="font-semibold text-stone-50">
+                      Name (optional):
+                    </span>
+                    <input
+                      type="text"
+                      className={`h-10 min-w-0 flex-grow rounded border-2 border-stone-50 pl-2 transition-all focus:bg-stone-50 
                 ${name ? "bg-stone-50" : "bg-transparent"}`}
-                onChange={(e) => setName(e.target.value)}
-                value={name}
-              />
-              <button
-                className={`active:shadow-button-press h-10 rounded border border-gray-500 bg-slate-50 px-4 font-semibold active:bg-slate-100 ${!name ? "pointer-events-none [filter:contrast(0.3)_brightness(1.4)]" : ""}`}
-                disabled={!name}
-                onClick={() => setName("")}
-              >
-                Clear
-              </button>
-            </div>
-          </div>
-          {/* <hr className="rounded-full border-t-2 border-stone-50" /> */}
-          <div className="flex flex-col gap-5">
-            <GenerateButton onClick={handleGenerate}>Generate</GenerateButton>
-            <div className="relative">
-              <div
-                id="result"
-                ref={resultRef}
-                className="relative grid h-40 w-full place-items-center rounded-lg bg-slate-50 "
-              >
-                <span
-                  key={result}
-                  ref={resultTextRef}
-                  className="animate-pop-in text-2xl text-center font-semibold [backface-visibility:hidden]"
-                >
-                  {result}
-                </span>
-              </div>
-              <CopyButton onClick={copyResultToClipboardAsImage} />
-            </div>
+                      onChange={(e) => setName(e.target.value)}
+                      value={name}
+                    />
+                    <button
+                      className={`active:shadow-button-press h-10 rounded border border-gray-500 bg-slate-50 px-4 font-semibold active:bg-slate-100 ${!name ? "pointer-events-none [filter:contrast(0.3)_brightness(1.4)]" : ""}`}
+                      disabled={!name}
+                      onClick={() => setName("")}
+                    >
+                      Clear
+                    </button>
+                  </div>
+                </div>
+                {/* <hr className="rounded-full border-t-2 border-stone-50" /> */}
+                <div className="flex flex-col gap-5">
+                  <GenerateButton onClick={handleGenerate}>
+                    Generate
+                  </GenerateButton>
+                  <div className="relative">
+                    <div
+                      id="result"
+                      ref={resultRef}
+                      className="relative grid h-40 w-full place-items-center rounded-lg bg-slate-50 "
+                    >
+                      <span
+                        key={result}
+                        ref={resultTextRef}
+                        className="animate-pop-in text-center text-2xl font-semibold [backface-visibility:hidden]"
+                      >
+                        {result}
+                      </span>
+                    </div>
+                    <CopyButton
+                      onClick={() => copyResultToClipboardAsImage(resultRef)}
+                    />
+                  </div>
+                </div>
+              </>
+            )}
           </div>
         </div>
+        <button
+          className={`font-sweet absolute bottom-2 right-4 ml-auto block text-lg font-semibold ${modeMap[mode].textColor}`}
+          onClick={() => setShowFeedbackForm(true)}
+        >
+          Feedback
+        </button>
       </div>
     </div>
   )
