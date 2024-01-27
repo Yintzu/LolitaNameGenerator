@@ -1,23 +1,30 @@
 import React from "react"
-import { PropsWithChildren, useState } from "react"
+import { PropsWithChildren } from "react"
+import DropdownOption from "./DropdownOption"
 
-const Dropdown = ({
-  children,
-  ...props
-}: PropsWithChildren<JSX.IntrinsicElements["div"]>) => {
-  const [dropdownOpen, setDropdownOpen] = useState(false)
+export type DropdownItem = {
+  text: string
+  value: string
+}
 
+type DropdownProps = {
+  text: string
+  items: DropdownItem[] | Record<string, DropdownItem[]>
+} & PropsWithChildren<JSX.IntrinsicElements["select"]>
+
+const Dropdown = ({ text, items, ...props }: DropdownProps) => {
   return (
-    <div className="relative text-left" {...props}>
-      <button
+    <select
+      className="h-10 rounded-md px-3 text-sm font-semibold text-gray-950 ring-1 ring-inset ring-gray-300"
+      {...props} /* ref={menuRef} */
+    >
+      {/* <button
         onClick={() => setDropdownOpen(!dropdownOpen)}
-        type="button"
-        className="justify-between flex w-full gap-x-1.5 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
-        id="menu-button"
-        aria-expanded="true"
+        className="flex w-full justify-between gap-x-1.5 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
         aria-haspopup="true"
+        ref={buttonRef}
       >
-        Options
+        {text}
         <svg
           className="-mr-1 h-5 w-5 text-gray-400"
           viewBox="0 0 20 20"
@@ -30,19 +37,38 @@ const Dropdown = ({
             clipRule="evenodd"
           />
         </svg>
-      </button>
-      <div
-        className={`absolute right-0 z-10 mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 transition duration-75 ease-in focus:outline-none ${dropdownOpen ? "scale-100 transform opacity-100" : "scale-95 transform opacity-0"}`}
+      </button> */}
+      {/* <div
+        className={`absolute right-0 z-10 mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 transition duration-75 ease-in focus:outline-none ${dropdownOpen ? "scale-100 transform opacity-100" : "hidden scale-95 transform opacity-0"}`}
         role="menu"
         aria-orientation="vertical"
         aria-labelledby="menu-button"
         tabIndex={-1}
-      >
-        <div className="py-1" role="none">
-          {children}
-        </div>
-      </div>
-    </div>
+      > */}
+      {/* <div className="py-1" role="none"> */}
+
+      {Array.isArray(items)
+        ? items.map((item, index) => {
+            return (
+              <DropdownOption key={item.text + index} value={item.value}>
+                {item.text}
+              </DropdownOption>
+            )
+          })
+        : Object.keys(items).map((key, index) => {
+            return (
+              <optgroup key={key} label={key}>
+                {items[key].map((item, index) => {
+                  return (
+                    <DropdownOption key={item.text + index} value={item.value}>
+                      {item.text}
+                    </DropdownOption>
+                  )
+                })}
+              </optgroup>
+            )
+          })}
+    </select>
   )
 }
 

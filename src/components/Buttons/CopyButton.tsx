@@ -1,8 +1,13 @@
 import React, { useRef, useState } from "react"
 
-const CopyButton = ({ onClick }: { onClick: () => void }) => {
+type CopyButtonProps = {
+  onClick: () => void
+  disabled: boolean
+}
+
+const CopyButton = ({ onClick, disabled }: CopyButtonProps) => {
   const copyConfirmRef = useRef<HTMLDivElement>(null)
-  const [animationKey, setAnimationKey] = useState(0) //TODO: can i use key to reset the animation?
+  // const [animationKey, setAnimationKey] = useState(0) //TODO: can I use key to reset the animation?
 
   const resetAnimation = () => {
     if (!copyConfirmRef.current) return
@@ -12,7 +17,7 @@ const CopyButton = ({ onClick }: { onClick: () => void }) => {
 
   const handleClick = () => {
     onClick()
-    setAnimationKey((prevKey) => prevKey + 1)
+    // setAnimationKey((prevKey) => prevKey + 1)
     if (!copyConfirmRef.current) return
     copyConfirmRef.current.style.display = "block"
     copyConfirmRef.current.style.animationName = "copy-confirm"
@@ -27,10 +32,11 @@ const CopyButton = ({ onClick }: { onClick: () => void }) => {
   return (
     <div className="absolute right-2 top-2">
       <button
-        className="rounded p-1 hover:bg-slate-200 active:bg-slate-300"
+        className={`rounded p-1 hover:bg-slate-200 active:bg-slate-300 ${disabled ? "pointer-events-none [filter:contrast(0.3)_brightness(1.4)]" : ""}`}
         onMouseDown={resetAnimation}
         onClick={handleClick}
         onKeyDown={onKeyDown}
+        disabled={disabled}
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"

@@ -9,14 +9,13 @@ import {
 } from "./data/words"
 import { copyResultToClipboardAsImage, random } from "./utilities/helpers"
 import CopyButton from "./components/Buttons/CopyButton"
-import { postFeedback } from "./utilities/supabase"
 import FeedbackForm from "./components/FedbackForm/FeedbackForm"
 
 enum Mode {
-  Classic = "classic",
-  Sweet = "sweet",
-  Gothic = "gothic",
-  Brand = "brand",
+  Classic = "Classic",
+  Sweet = "Sweet",
+  Gothic = "Gothic",
+  Brand = "Brand",
 }
 
 const modeMap = {
@@ -52,17 +51,16 @@ const modeMap = {
 
 function App() {
   const [mode, setMode] = useState(Mode.Classic)
-  const [result, setResult] = useState("")
+  const [result, setResult] = useState<React.ReactNode>()
   const [name, setName] = useState("")
   const resultRef = useRef<HTMLDivElement>(null)
   const resultTextRef = useRef<HTMLSpanElement>(null)
-  const [key, setKey] = useState(0)
   const [showFeedbackForm, setShowFeedbackForm] = useState(false)
 
   const handleGenerate = () => {
     const seed = name.trim().toLowerCase()
     const words = modeMap[mode].words
-    const noOfWords = Math.floor(random(seed + mode) * 2) + 3
+    const noOfWords = Math.floor(random(seed ? seed + mode : undefined) * 2) + 3
     const wordArray: string[] = []
     for (let i = 0; i < noOfWords; i++) {
       let newWordIndex = Math.floor(
@@ -76,21 +74,38 @@ function App() {
       }
       wordArray.push(newWord)
     }
-    setResult(wordArray.join(" "))
 
-    if (!resultTextRef.current) return
-    resultTextRef.current.style.animationName = "pop-in"
-    // setKey((prevKey) => prevKey + 1)
+    const wordString = wordArray.join(" ")
+    const resultJSX = (
+      <div className="flex flex-col items-center gap-3 text-center">
+        {name ? (
+          <div className="text-center text-lg font-semibold">
+            <span className="font-bold">
+              {name.endsWith("s") ? `${name}' ` : `${name}'s `}
+            </span>
+            {mode === Mode.Brand ? "brand" : `${mode} Lolita`} name is:
+          </div>
+        ) : null}
+        <span
+          key={wordString}
+          ref={resultTextRef}
+          className="animate-pop-in text-2xl font-semibold [backface-visibility:hidden]"
+        >
+          {wordString}
+        </span>
+      </div>
+    )
+    setResult(resultJSX)
   }
 
   return (
     <div
       id="app"
-      className={`h-full min-h-screen overflow-x-hidden text-stone-950`}
+      className={`h-full min-h-screen overflow-x-hidden text-gray-950`}
     >
       <div
         className={`${modeMap[mode].anim} max-h-100vh absolute h-full min-h-screen ${modeMap[mode].bg} w-screen`}
-      ></div>
+      />
       <div className="relative min-h-screen pb-9">
         <div
           id="content"
@@ -106,7 +121,7 @@ function App() {
             className={`rounded-lg bg-opacity-75 p-5 shadow-2xl ${modeMap[mode].bgColor} flex w-full flex-col gap-10 backdrop-blur-sm`}
           >
             {showFeedbackForm ? (
-              <FeedbackForm />
+              <FeedbackForm back={() => setShowFeedbackForm(false)} />
             ) : (
               <>
                 <div className="flex flex-col gap-10">
@@ -148,18 +163,20 @@ function App() {
                     </ModeButton>
                   </div>
                   <div className="flex items-center gap-5">
-                    <span className="font-semibold text-stone-50">
+                    <span className="font-semibold text-gray-50">
                       Name (optional):
                     </span>
                     <input
                       type="text"
-                      className={`h-10 min-w-0 flex-grow rounded border-2 border-stone-50 pl-2 transition-all focus:bg-stone-50 
-                ${name ? "bg-stone-50" : "bg-transparent"}`}
+                      className={`h-9 min-w-0 flex-grow rounded pl-2 transition-all focus:bg-gray-50
+                        ${name ? "bg-gray-50 ring-1 ring-gray-300" : "bg-transparent ring-2 ring-gray-50"}`}
                       onChange={(e) => setName(e.target.value)}
+                      name="name"
+                      // placeholder="Name... (optional)"
                       value={name}
                     />
                     <button
-                      className={`active:shadow-button-press h-10 rounded border border-gray-500 bg-slate-50 px-4 font-semibold active:bg-slate-100 ${!name ? "pointer-events-none [filter:contrast(0.3)_brightness(1.4)]" : ""}`}
+                      className={`active:shadow-button-press h-10 rounded-md border border-gray-500 bg-gray-50 px-4 font-semibold active:bg-gray-100 ${!name ? "pointer-events-none [filter:contrast(0.3)_brightness(1.4)]" : ""}`}
                       disabled={!name}
                       onClick={() => setName("")}
                     >
@@ -167,7 +184,6 @@ function App() {
                     </button>
                   </div>
                 </div>
-                {/* <hr className="rounded-full border-t-2 border-stone-50" /> */}
                 <div className="flex flex-col gap-5">
                   <GenerateButton onClick={handleGenerate}>
                     Generate
@@ -176,18 +192,13 @@ function App() {
                     <div
                       id="result"
                       ref={resultRef}
-                      className="relative grid h-40 w-full place-items-center rounded-lg bg-slate-50 "
+                      className="relative grid min-h-40 w-full place-items-center rounded-lg bg-gray-50 p-8 ring-1 ring-inset ring-gray-300"
                     >
-                      <span
-                        key={result}
-                        ref={resultTextRef}
-                        className="animate-pop-in text-center text-2xl font-semibold [backface-visibility:hidden]"
-                      >
-                        {result}
-                      </span>
+                      {result}
                     </div>
                     <CopyButton
                       onClick={() => copyResultToClipboardAsImage(resultRef)}
+                      disabled={!result}
                     />
                   </div>
                 </div>
@@ -196,7 +207,7 @@ function App() {
           </div>
         </div>
         <button
-          className={`font-sweet absolute bottom-2 right-4 ml-auto block text-lg font-semibold ${modeMap[mode].textColor}`}
+          className={`font-sweet absolute bottom-2 right-4 ml-auto block text-xl font-semibold ${modeMap[mode].textColor}`}
           onClick={() => setShowFeedbackForm(true)}
         >
           Feedback
