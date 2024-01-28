@@ -1,4 +1,4 @@
-import { useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import ModeButton from "./components/Buttons/ModeButtons"
 import GenerateButton from "./components/Buttons/GenerateButton"
 import {
@@ -11,8 +11,6 @@ import { copyResultToClipboardAsImage, random } from "./utilities/helpers"
 import CopyButton from "./components/Buttons/CopyButton"
 import FeedbackForm from "./components/FedbackForm/FeedbackForm"
 import { Mode } from "./data/enums"
-
-
 
 const modeMap = {
   [Mode.Classic]: {
@@ -52,6 +50,19 @@ function App() {
   const resultRef = useRef<HTMLDivElement>(null)
   const resultTextRef = useRef<HTMLSpanElement>(null)
   const [showFeedbackForm, setShowFeedbackForm] = useState(false)
+
+  useEffect(() => {
+    const preloadImage = (src: string) => {
+      const img = new Image()
+      img.src = src
+    }
+    ;[
+      "/classicbg.jpg",
+      "/gothicbg.jpg",
+      "/sweetbg.jpg",
+      "/brandbg.jpg",
+    ].forEach((src) => preloadImage(src))
+  }, [])
 
   const handleGenerate = () => {
     const seed = name.trim().toLowerCase()
@@ -170,7 +181,6 @@ function App() {
                       ${name ? "bg-gray-50 ring-1 ring-gray-300" : "bg-transparent ring-2 ring-gray-50"}`}
                         onChange={(e) => setName(e.target.value)}
                         name="name"
-                        // placeholder="Name... (optional)"
                         value={name}
                       />
                       <button
