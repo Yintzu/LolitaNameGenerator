@@ -1,74 +1,43 @@
 import React from "react"
 import { PropsWithChildren } from "react"
 import DropdownOption from "./DropdownOption"
-
-export type DropdownItem = {
-  text: string
-  value: string
-}
+import ChevronDown from "./ChevronDown"
 
 type DropdownProps = {
-  text: string
-  items: DropdownItem[] | Record<string, DropdownItem[]>
+  items: string[] | Record<string, string[]>
 } & PropsWithChildren<JSX.IntrinsicElements["select"]>
 
-const Dropdown = ({ text, items, ...props }: DropdownProps) => {
+const Dropdown = ({ items, ...props }: DropdownProps) => {
   return (
-    <select
-      className="h-10 rounded-md px-3 text-sm font-semibold text-gray-950 ring-1 ring-inset ring-gray-300"
-      {...props} /* ref={menuRef} */
-    >
-      {/* <button
-        onClick={() => setDropdownOpen(!dropdownOpen)}
-        className="flex w-full justify-between gap-x-1.5 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
-        aria-haspopup="true"
-        ref={buttonRef}
+    <div className="relative w-full">
+      <ChevronDown />
+      <select
+        className={`h-10 w-full appearance-none rounded-md bg-gray-50 px-3 text-sm font-semibold text-gray-950 ring-1 ring-inset ring-gray-300 ${props.disabled ? "pointer-events-none opacity-100 [filter:contrast(0.3)_brightness(1.4)]" : ""}`}
+        {...props}
       >
-        {text}
-        <svg
-          className="-mr-1 h-5 w-5 text-gray-400"
-          viewBox="0 0 20 20"
-          fill="currentColor"
-          aria-hidden="true"
-        >
-          <path
-            fillRule="evenodd"
-            d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
-            clipRule="evenodd"
-          />
-        </svg>
-      </button> */}
-      {/* <div
-        className={`absolute right-0 z-10 mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 transition duration-75 ease-in focus:outline-none ${dropdownOpen ? "scale-100 transform opacity-100" : "hidden scale-95 transform opacity-0"}`}
-        role="menu"
-        aria-orientation="vertical"
-        aria-labelledby="menu-button"
-        tabIndex={-1}
-      > */}
-      {/* <div className="py-1" role="none"> */}
-
-      {Array.isArray(items)
-        ? items.map((item, index) => {
-            return (
-              <DropdownOption key={item.text + index} value={item.value}>
-                {item.text}
-              </DropdownOption>
-            )
-          })
-        : Object.keys(items).map((key, index) => {
-            return (
-              <optgroup key={key} label={key}>
-                {items[key].map((item, index) => {
-                  return (
-                    <DropdownOption key={item.text + index} value={item.value}>
-                      {item.text}
-                    </DropdownOption>
-                  )
-                })}
-              </optgroup>
-            )
-          })}
-    </select>
+        {Array.isArray(items)
+          ? items.map((item, index) => {
+              return (
+                <DropdownOption key={item + index} value={item}>
+                  {item}
+                </DropdownOption>
+              )
+            })
+          : Object.keys(items).map((key) => {
+              return (
+                <optgroup key={key} label={key}>
+                  {items[key].map((item, index) => {
+                    return (
+                      <DropdownOption key={item + index} value={item}>
+                        {item}
+                      </DropdownOption>
+                    )
+                  })}
+                </optgroup>
+              )
+            })}
+      </select>
+    </div>
   )
 }
 

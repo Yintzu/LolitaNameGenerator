@@ -1,4 +1,5 @@
 import { createClient } from "@supabase/supabase-js"
+// import { Mode } from "../App"
 
 const supabase = createClient(
   import.meta.env.VITE_SUPABASE_URL,
@@ -8,6 +9,7 @@ const supabase = createClient(
 export const postFeedback = async (postData: {
   type: string
   word: string
+  style: string | null
   comment: string
 }) => {
   const res = await supabase.from("Feedback").insert(postData)

@@ -10,13 +10,9 @@ import {
 import { copyResultToClipboardAsImage, random } from "./utilities/helpers"
 import CopyButton from "./components/Buttons/CopyButton"
 import FeedbackForm from "./components/FedbackForm/FeedbackForm"
+import { Mode } from "./data/enums"
 
-enum Mode {
-  Classic = "Classic",
-  Sweet = "Sweet",
-  Gothic = "Gothic",
-  Brand = "Brand",
-}
+
 
 const modeMap = {
   [Mode.Classic]: {
@@ -112,7 +108,8 @@ function App() {
           className="relative mx-auto flex h-full w-full max-w-[720px] flex-col gap-5 px-2 pb-2 pt-10"
         >
           <h1
-            className={`my-4 text-center text-6xl font-bold ${modeMap[mode].textColor}`}
+            className={`my-4 text-center text-6xl font-bold ${modeMap[mode].textColor} ${showFeedbackForm ? "cursor-pointer" : ""}`}
+            onClick={() => setShowFeedbackForm(false)}
           >
             Lolita Name Generator
           </h1>
@@ -157,31 +154,33 @@ function App() {
                       id="brand"
                       onClick={() => setMode(Mode.Brand)}
                       isSelected={mode === Mode.Brand}
-                      className={`border-pink-600 bg-slate-50 ${modeMap[Mode.Brand].textColor} font-brand`}
+                      className={`border-pink-600 bg-gray-50 ${modeMap[Mode.Brand].textColor} font-brand`}
                     >
                       Brand
                     </ModeButton>
                   </div>
-                  <div className="flex items-center gap-5">
-                    <span className="font-semibold text-gray-50">
+                  <div className="flex flex-col items-center gap-5 sm:flex-row">
+                    <span className="whitespace-nowrap font-semibold text-gray-50">
                       Name (optional):
                     </span>
-                    <input
-                      type="text"
-                      className={`h-9 min-w-0 flex-grow rounded pl-2 transition-all focus:bg-gray-50
-                        ${name ? "bg-gray-50 ring-1 ring-gray-300" : "bg-transparent ring-2 ring-gray-50"}`}
-                      onChange={(e) => setName(e.target.value)}
-                      name="name"
-                      // placeholder="Name... (optional)"
-                      value={name}
-                    />
-                    <button
-                      className={`active:shadow-button-press h-10 rounded-md border border-gray-500 bg-gray-50 px-4 font-semibold active:bg-gray-100 ${!name ? "pointer-events-none [filter:contrast(0.3)_brightness(1.4)]" : ""}`}
-                      disabled={!name}
-                      onClick={() => setName("")}
-                    >
-                      Clear
-                    </button>
+                    <div className="flex w-full items-center gap-5">
+                      <input
+                        type="text"
+                        className={`h-9 min-w-0 flex-grow rounded pl-2 transition-all focus:bg-gray-50
+                      ${name ? "bg-gray-50 ring-1 ring-gray-300" : "bg-transparent ring-2 ring-gray-50"}`}
+                        onChange={(e) => setName(e.target.value)}
+                        name="name"
+                        // placeholder="Name... (optional)"
+                        value={name}
+                      />
+                      <button
+                        className={`active:shadow-button-press h-10 rounded-md border border-gray-500 bg-gray-50 px-4 font-semibold active:bg-gray-100 ${!name ? "pointer-events-none [filter:contrast(0.3)_brightness(1.4)]" : ""}`}
+                        disabled={!name}
+                        onClick={() => setName("")}
+                      >
+                        Clear
+                      </button>
+                    </div>
                   </div>
                 </div>
                 <div className="flex flex-col gap-5">

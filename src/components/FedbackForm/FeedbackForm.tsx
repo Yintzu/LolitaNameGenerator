@@ -1,6 +1,6 @@
 import React from "react"
 import { useState } from "react"
-import Dropdown, { DropdownItem } from "../Dropdown/Dropdown"
+import Dropdown from "../Dropdown/Dropdown"
 import {
   brandWords,
   classicLolitaWords,
@@ -9,40 +9,35 @@ import {
 } from "../../data/words"
 import { postFeedback } from "../../utilities/supabase"
 import Spinner from "../Spinner/Spinner"
+import { Mode } from "../../data/enums"
 
 enum FormType {
-  Add = "Add",
-  Remove = "Remove",
-  Comment = "Comment",
+  Add = "Add word",
+  Remove = "Remove word",
+  Other = "Other",
 }
 
-const typeDropdownItems: DropdownItem[] = [
-  {
-    text: "Add word",
-    value: FormType.Add,
-  },
-  {
-    text: "Remove word",
-    value: FormType.Remove,
-  },
-  {
-    text: "Comment",
-    value: FormType.Comment,
-  },
-]
+const typeDropdownItems = Object.values(FormType) as string[]
+
+const styleDropdownItems = Object.values(Mode) as string[]
+
+const words = {
+  Classic: classicLolitaWords.sort(),
+  Sweet: sweetLolitaWords.sort(),
+  Gothic: gothicLolitaWords.sort(),
+  Brand: brandWords.sort(),
+}
 
 const defaultInputValues = {
   word: "",
   comment: "",
+  style: Mode.Classic,
 }
 
-const words = {
-  Classic: classicLolitaWords
-    .sort()
-    .map((word) => ({ text: word, value: word })),
-  Sweet: sweetLolitaWords.sort().map((word) => ({ text: word, value: word })),
-  Gothic: gothicLolitaWords.sort().map((word) => ({ text: word, value: word })),
-  Brand: brandWords.sort().map((word) => ({ text: word, value: word })),
+type InputValues = {
+  word: string
+  comment: string
+  style: Mode | null
 }
 
 type FedbackFormProps = {
@@ -51,7 +46,8 @@ type FedbackFormProps = {
 
 const FeedbackForm = ({ back }: FedbackFormProps) => {
   const [formType, setFormType] = useState(FormType.Add)
-  const [inputValues, setInputValues] = useState(defaultInputValues)
+  const [inputValues, setInputValues] =
+    useState<InputValues>(defaultInputValues)
   const [isPosting, setIsPosting] = useState(false)
   const [errorMessage, setErrorMessage] = useState("")
   const [showSuccess, setShowSuccess] = useState(false)
@@ -61,21 +57,32 @@ const FeedbackForm = ({ back }: FedbackFormProps) => {
     setIsPosting(true)
     setErrorMessage("")
     try {
-      await postFeedback({ ...inputValues, type: formType })
+      const res = await postFeedback({ ...inputValues, type: formType })
+      if (res.error) {
+        throw new Error(res.error.message)
+      }
+      setShowSuccess(true)
     } catch (err) {
       const error = err as Error
       setErrorMessage(error.message)
     }
-    setShowSuccess(true)
     setIsPosting(false)
   }
 
   const handleSelectFormType = (type: FormType) => {
     setFormType(type)
-    if (type === FormType.Remove) {
-      setInputValues({ ...defaultInputValues, word: words.Classic[0].value })
+    switch (type) {
+      case FormType.Add:
+        return setInputValues(defaultInputValues)
+      case FormType.Remove:
+        return setInputValues({
+          ...defaultInputValues,
+          word: words.Classic[0],
+          style: null,
+        })
+      case FormType.Other:
+        return setInputValues({ ...defaultInputValues, style: null })
     }
-    setInputValues(defaultInputValues)
   }
 
   const handleChange = (
@@ -89,7 +96,6 @@ const FeedbackForm = ({ back }: FedbackFormProps) => {
   return (
     <form className="flex w-full flex-col gap-4" onSubmit={handleSubmit}>
       <Dropdown
-        text={formType}
         items={typeDropdownItems}
         name="type"
         disabled={isPosting}
@@ -99,7 +105,6 @@ const FeedbackForm = ({ back }: FedbackFormProps) => {
       />
       {formType === FormType.Remove && (
         <Dropdown
-          text={inputValues.word}
           name="word"
           items={words}
           disabled={isPosting}
@@ -107,24 +112,32 @@ const FeedbackForm = ({ back }: FedbackFormProps) => {
         />
       )}
       {formType === FormType.Add && (
-        <input
-          placeholder="Word..."
-          value={inputValues.word}
-          onChange={(e) => handleChange("word", e.target.value)}
-          name="word"
-          disabled={isPosting}
-          className="h-10 w-full rounded-md px-3 text-sm font-semibold outline-none ring-1 ring-inset ring-gray-300"
-          required
-        />
+        <>
+          <Dropdown
+            name="style"
+            items={styleDropdownItems}
+            disabled={isPosting}
+            onChange={(e) => handleChange("style", e.target.value)}
+          />
+          <input
+            placeholder="Word..."
+            value={inputValues.word}
+            onChange={(e) => handleChange("word", e.target.value)}
+            name="word"
+            disabled={isPosting}
+            className={`h-10 w-full rounded-md bg-gray-50 px-3 text-sm outline-none ring-1 ring-inset ring-gray-300 placeholder:font-semibold ${isPosting ? "pointer-events-none [filter:contrast(0.3)_brightness(1.4)]" : ""}`}
+            required
+          />
+        </>
       )}
       <textarea
         placeholder="Comment..."
         disabled={isPosting}
         name="comment"
-        className="h-52 w-full resize-none rounded-md px-3 py-3 text-sm font-semibold outline-none ring-1 ring-inset ring-gray-300"
+        className={`h-52 w-full resize-none rounded-md bg-gray-50 px-3 py-3 text-sm outline-none ring-1 ring-inset ring-gray-300 placeholder:font-semibold ${isPosting ? "pointer-events-none [filter:contrast(0.3)_brightness(1.4)]" : ""}`}
         value={inputValues.comment}
         onChange={(event) => handleChange("comment", event.target.value)}
-        required={formType === FormType.Comment}
+        required={formType === FormType.Other}
       />
       {errorMessage && (
         <span className="rounded-md bg-red-200 px-3 py-3 text-center text-red-950 ring-1 ring-inset ring-red-950">
