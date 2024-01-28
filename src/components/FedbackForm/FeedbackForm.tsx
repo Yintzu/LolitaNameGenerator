@@ -84,13 +84,10 @@ const FeedbackForm = ({ back }: FedbackFormProps) => {
         return setInputValues({ ...defaultInputValues, style: null })
     }
   }
-
-  const handleChange = (
-    key: keyof typeof defaultInputValues,
-    value: string,
-  ) => {
+  
+  const handleChange = (values: Record<string, string>) => {
     setShowSuccess(false)
-    setInputValues({ ...inputValues, [key]: value })
+    setInputValues({ ...inputValues, ...values })
   }
 
   return (
@@ -108,7 +105,13 @@ const FeedbackForm = ({ back }: FedbackFormProps) => {
           name="word"
           items={words}
           disabled={isPosting}
-          onChange={(e) => handleChange("word", e.target.value)}
+          onChange={(e) => {
+            const selectedOption = e.target.options[e.target.selectedIndex]
+            const optgroupLabel = (
+              selectedOption.parentElement as HTMLOptGroupElement
+            ).label
+            handleChange({ word: e.target.value, style: optgroupLabel })
+          }}
         />
       )}
       {formType === FormType.Add && (
@@ -117,12 +120,12 @@ const FeedbackForm = ({ back }: FedbackFormProps) => {
             name="style"
             items={styleDropdownItems}
             disabled={isPosting}
-            onChange={(e) => handleChange("style", e.target.value)}
+            onChange={(e) => handleChange({ style: e.target.value })}
           />
           <input
             placeholder="Word..."
             value={inputValues.word}
-            onChange={(e) => handleChange("word", e.target.value)}
+            onChange={(e) => handleChange({ word: e.target.value })}
             name="word"
             disabled={isPosting}
             className={`h-10 w-full rounded-md bg-gray-50 px-3 text-sm outline-none ring-1 ring-inset ring-gray-300 placeholder:font-semibold ${isPosting ? "pointer-events-none [filter:contrast(0.3)_brightness(1.4)]" : ""}`}
@@ -136,7 +139,7 @@ const FeedbackForm = ({ back }: FedbackFormProps) => {
         name="comment"
         className={`h-52 w-full resize-none rounded-md bg-gray-50 px-3 py-3 text-sm outline-none ring-1 ring-inset ring-gray-300 placeholder:font-semibold ${isPosting ? "pointer-events-none [filter:contrast(0.3)_brightness(1.4)]" : ""}`}
         value={inputValues.comment}
-        onChange={(event) => handleChange("comment", event.target.value)}
+        onChange={(event) => handleChange({ comment: event.target.value })}
         required={formType === FormType.Other}
       />
       {errorMessage && (
