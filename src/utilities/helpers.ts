@@ -18,10 +18,11 @@ export const copyResultToClipboardAsImage = async (
   try {
     if (!resultRef.current) return
     const div = resultRef.current.cloneNode(true) as HTMLDivElement
-    div.style.paddingBottom = "20px"
+    div.style.paddingBottom = "55px"
     div.style.maxWidth = "600px"
     div.style.position = "absolute"
     div.style.left = "-10000px"
+    div.style.borderRadius = "0px"
 
     document.body.appendChild(div)
     const canvas = await html2canvas(div)
