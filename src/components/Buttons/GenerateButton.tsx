@@ -14,7 +14,7 @@ const GenerateButton = ({
 }: ButtonTypes) => {
   return (
     <button
-      className={`active:shadow-button-press flex-grow rounded-md border-2 border-gray-500 bg-gray-50 px-4 py-6 
+      className={`active:shadow-button-press h-20 flex-grow rounded-md border-2 border-gray-500 bg-gray-50 px-4 
       text-2xl font-semibold active:bg-gray-100 w-full${
         className ? ` ${className}` : ""
       }`}

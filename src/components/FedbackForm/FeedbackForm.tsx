@@ -9,7 +9,7 @@ import {
 } from "../../data/words"
 import { postFeedback } from "../../utilities/supabase"
 import Spinner from "../Spinner/Spinner"
-import { Mode } from "../../data/enums"
+import { Mode } from "../../data/constants"
 
 enum FormType {
   Add = "Add word",

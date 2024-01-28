@@ -16,9 +16,9 @@ const ModeButton = ({
 }: ButtonTypes) => {
   return (
     <button
-      className={`rounded-md text-2xl border-2 py-4 transition-all flex-grow${
+      className={`h-12 rounded-md border-2 text-2xl transition-all sm:h-16 flex-grow${
         className ? ` ${className}` : ""
-      }${isSelected ? " scale-105 shadow-lg" : " saturate-0 bg-gray-400"}`}
+      }${isSelected ? " scale-105 shadow-lg" : " bg-gray-400 saturate-0"}`}
       onClick={onClick}
       {...props}
     >
