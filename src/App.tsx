@@ -87,7 +87,7 @@ function App() {
           className="relative mx-auto h-full w-full max-w-[660px] p-2"
         >
           <h1
-            className={`my-3 mb-4 text-center text-3xl font-bold sm:my-10 sm:text-6xl ${modeMap[mode].textColor} ${showFeedbackForm ? "cursor-pointer" : ""}`}
+            className={`mt-3 mb-6 text-center text-4xl font-bold sm:my-10 sm:text-6xl ${modeMap[mode].textColor} ${showFeedbackForm ? "cursor-pointer" : ""}`}
             onClick={() => setShowFeedbackForm(false)}
           >
             Lolita Name Generator
