@@ -34,7 +34,6 @@ export const classicLolitaWords = [
   "Porcelain",
   "Rococo",
   "Velvet",
-  "Bead",
   "Locket",
   "Pinafore",
   "Stocking",
