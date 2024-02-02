@@ -3,8 +3,11 @@ import { useState } from "react"
 import Dropdown from "../Dropdown/Dropdown"
 import {
   brandWords,
+  classicLolitaAdjectives,
   classicLolitaWords,
+  gothicLolitaAdjectives,
   gothicLolitaWords,
+  sweetLolitaAdjectives,
   sweetLolitaWords,
 } from "../../data/words"
 import { postFeedback } from "../../utilities/supabase"
@@ -22,9 +25,9 @@ const typeDropdownItems = Object.values(FormType) as string[]
 const styleDropdownItems = Object.values(Mode) as string[]
 
 const words = {
-  Classic: classicLolitaWords.sort(),
-  Sweet: sweetLolitaWords.sort(),
-  Gothic: gothicLolitaWords.sort(),
+  Classic: [...classicLolitaAdjectives, ...classicLolitaWords].sort(),
+  Sweet: [...sweetLolitaAdjectives, ...sweetLolitaWords].sort(),
+  Gothic: [...gothicLolitaAdjectives, ...gothicLolitaWords].sort(),
   Brand: brandWords.sort(),
 }
 
@@ -84,7 +87,7 @@ const FeedbackForm = ({ back }: FedbackFormProps) => {
         return setInputValues({ ...defaultInputValues, style: null })
     }
   }
-  
+
   const handleChange = (values: Record<string, string>) => {
     setShowSuccess(false)
     setInputValues({ ...inputValues, ...values })
@@ -149,14 +152,14 @@ const FeedbackForm = ({ back }: FedbackFormProps) => {
       )}
       <div className="flex gap-3">
         <button
-          className="active:shadow-button-press h-10 w-full rounded-md bg-gray-50 font-semibold ring-1 ring-inset ring-gray-300 active:bg-gray-100"
+          className="h-10 w-full rounded-md bg-gray-50 font-semibold ring-1 ring-inset ring-gray-300 active:bg-gray-100 active:shadow-button-press"
           onClick={back}
           type="button"
         >
           Back
         </button>
         <button
-          className={`${isPosting || showSuccess ? "" : "active:shadow-button-press active:bg-gray-100"} flex h-10 w-full items-center justify-center rounded-md bg-gray-50 font-semibold ring-1 ring-inset ring-gray-300 `}
+          className={`${isPosting || showSuccess ? "" : "active:bg-gray-100 active:shadow-button-press"} flex h-10 w-full items-center justify-center rounded-md bg-gray-50 font-semibold ring-1 ring-inset ring-gray-300 `}
           disabled={isPosting || showSuccess}
           type="submit"
         >

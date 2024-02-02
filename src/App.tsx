@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from "react"
 import ModeButton from "./components/Buttons/ModeButtons"
 import GenerateButton from "./components/Buttons/GenerateButton"
-import { copyResultToClipboardAsImage, random } from "./utilities/helpers"
-import CopyButton from "./components/Buttons/CopyButton"
+import {  random } from "./utilities/helpers"
+// import CopyButton from "./components/Buttons/CopyButton"
 import FeedbackForm from "./components/FedbackForm/FeedbackForm"
 import { Mode, modeMap } from "./data/constants"
 import NameInput from "./components/NameInput/NameInput"
@@ -30,6 +30,7 @@ function App() {
 
   const handleGenerate = () => {
     const seed = name.trim().toLowerCase()
+    const adjectives = modeMap[mode].adjectives
     const words = modeMap[mode].words
     const baseNoOfWords = mode === Mode.Brand ? 1 : 2
     const maxAdditionalWords = mode === Mode.Brand ? 2 : 2
@@ -38,14 +39,15 @@ function App() {
       baseNoOfWords
     const wordArray: string[] = []
     for (let i = 0; i < noOfWords; i++) {
+      const pool = i === noOfWords - 1 ? words : [...adjectives, ...words]
       let newWordIndex = Math.floor(
-        random(seed ? seed + i * 10 : "") * words.length,
+        random(seed ? seed + i * 10 : "") * pool.length,
       )
-      let newWord = words[newWordIndex]
+      let newWord = pool[newWordIndex]
       while (wordArray.includes(newWord)) {
         // Adjust the index by adding 1 and ensure it wraps around the words array length if it exceeds.
-        newWordIndex = (newWordIndex + 1) % words.length
-        newWord = words[newWordIndex]
+        newWordIndex = (newWordIndex + 1) % pool.length
+        newWord = pool[newWordIndex]
       }
       wordArray.push(newWord)
     }
@@ -147,10 +149,10 @@ function App() {
                     >
                       {result}
                     </div>
-                    <CopyButton
+                    {/* <CopyButton
                       onClick={() => copyResultToClipboardAsImage(resultRef)}
                       disabled={!result}
-                    />
+                    /> */}
                   </div>
                 </div>
               </>

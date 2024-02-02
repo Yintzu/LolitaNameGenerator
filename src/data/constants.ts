@@ -1,7 +1,10 @@
 import {
   brandWords,
+  classicLolitaAdjectives,
   classicLolitaWords,
+  gothicLolitaAdjectives,
   gothicLolitaWords,
+  sweetLolitaAdjectives,
   sweetLolitaWords,
 } from "./words"
 
@@ -15,6 +18,7 @@ export enum Mode {
 export const modeMap = {
   [Mode.Classic]: {
     words: classicLolitaWords,
+    adjectives: classicLolitaAdjectives,
     bg: "bg-classic",
     anim: "animate-bgPan-classic",
     textColor: "text-yellow-950",
@@ -22,6 +26,7 @@ export const modeMap = {
   },
   [Mode.Sweet]: {
     words: sweetLolitaWords,
+    adjectives: sweetLolitaAdjectives,
     bg: "bg-sweet",
     anim: "animate-bgPan-sweet",
     textColor: "text-purple-950",
@@ -29,6 +34,7 @@ export const modeMap = {
   },
   [Mode.Gothic]: {
     words: gothicLolitaWords,
+    adjectives: gothicLolitaAdjectives,
     bg: "bg-gothic",
     anim: "animate-bgPan-gothic",
     textColor: "text-stone-50",
@@ -36,6 +42,7 @@ export const modeMap = {
   },
   [Mode.Brand]: {
     words: brandWords,
+    adjectives: [],
     bg: "bg-brand",
     anim: "animate-bgPan-brand",
     textColor: "text-cyan-600",
